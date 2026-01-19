@@ -13,6 +13,8 @@ from .model import PiCoGenDecoder
 from .repr import Event
 from .utils import downbeat_time_to_index
 
+torch.cuda.set_device(0)
+
 
 def download(input_url: str, output_file: Path):
     tmp_dir = tempfile.TemporaryDirectory()
