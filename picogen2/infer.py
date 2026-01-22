@@ -13,8 +13,24 @@ from .model import PiCoGenDecoder
 from .repr import Event
 from .utils import downbeat_time_to_index
 
-torch.cuda.set_device(0)
+# Add debug trace before running
+import torch.distributed as dist
+original_init = dist.init_process_group
 
+def debug_init(*args, **kwargs):
+    import traceback
+    print("=" * 80)
+    print("init_process_group called with:")
+    print(f"Args: {args}")
+    print(f"Kwargs: {kwargs}")
+    print("\nCall stack:")
+    traceback.print_stack()
+    print("=" * 80)
+    return original_init(*args, **kwargs)
+
+dist.init_process_group = debug_init
+
+# Now run your picogen2 code - it will show you where the call originates
 
 def download(input_url: str, output_file: Path):
     tmp_dir = tempfile.TemporaryDirectory()
