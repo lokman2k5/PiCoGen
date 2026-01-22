@@ -30,6 +30,15 @@ def debug_init(*args, **kwargs):
 
 dist.init_process_group = debug_init
 
+import os
+os.environ['RANK'] = '0'
+os.environ['WORLD_SIZE'] = '1'
+os.environ['MASTER_ADDR'] = 'localhost'
+os.environ['MASTER_PORT'] = '29500'
+os.environ['JUKEBOX_BACKEND'] = 'gloo'  # Force gloo backend
+
+# Then run picogen2
+
 # Now run your picogen2 code - it will show you where the call originates
 
 def download(input_url: str, output_file: Path):
