@@ -1,3 +1,41 @@
+import os
+import sys
+import torch
+
+# Force environment
+os.environ['RANK'] = '0'
+os.environ['WORLD_SIZE'] = '1'
+os.environ['MASTER_ADDR'] = 'localhost'
+os.environ['MASTER_PORT'] = '29500'
+
+# Patch torch.distributed.init_process_group to do nothing
+import torch.distributed as dist
+
+original_init = dist.init_process_group
+original_is_available = dist.is_available
+original_is_initialized = dist.is_initialized
+
+def fake_init(*args, **kwargs):
+    """Pretend to initialize but do nothing"""
+    print("🔧 Skipping distributed init (single GPU mode)")
+    pass
+
+def fake_is_available():
+    """Pretend distributed is not available"""
+    return False
+
+def fake_is_initialized():
+    """Pretend it's already initialized"""
+    return False
+
+dist.init_process_group = fake_init
+dist.is_available = fake_is_available
+dist.is_initialized = fake_is_initialized
+
+print("✅ Torch distributed disabled - using single GPU mode")
+
+# Now run picogen2
+
 import argparse
 import json
 from pathlib import Path
